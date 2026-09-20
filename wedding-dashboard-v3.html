@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wedding Dashboard Editor — Yoki & Mega</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  /* ── DESIGN LANGUAGE: Dark Luxury Gold (mirroring undangan-digital) ── */
+  :root {
+    --bg:        #0d0d0d;
+    --bg2:       #141414;
+    --surface:   #1a1a1a;
+    --surface2:  #222222;
+    --border:    rgba(255,255,255,0.08);
+    --text:      #f0ece4;
+    --text-muted:#888880;
+    --gold:      #c9a96e;
+    --gold-light:#e8d5a3;
+    --gold-dark: #8a6b3a;
+    --accent:    #d4af7a;
+    --danger:    #c0392b;
+    --success:   #27ae60;
+    --radius:    1rem;
+    --shadow:    0 4px 24px rgba(0,0,0,0.5);
+    --shadow-lg: 0 8px 48px rgba(0,0,0,0.7);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    overflow-x: hidden;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* ── HEADER ── */
+  .header {
+    background: rgba(13,13,13,0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    color: var(--gold-light);
+  }
+  .header-title span { font-style: italic; color: var(--gold); }
+  .header-subtitle {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-top: 0.2rem;
+  }
+
+  .btn-download {
+    background: transparent;
+    color: var(--gold-light);
+    border: 1px solid var(--gold);
+    padding: 0.55rem 1.4rem;
+    border-radius: 2rem;
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-download:hover { background: var(--gold); color: var(--bg); }
+  .btn-download:active { opacity: 0.8; }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 61px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0;
+    position: sticky;
+    top: 61px;
+    height: calc(100vh - 61px);
+    overflow-y: auto;
+  }
+  .sidebar-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: var(--text-muted);
+    padding: 0.75rem 1.25rem 0.4rem;
+    font-family: 'Josefin Sans', sans-serif;
+    opacity: 0.7;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.6rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 300;
+    margin: 0.1rem 0.5rem;
+    border: 1px solid transparent;
+    background: none;
+    border-radius: 0.5rem;
+    width: calc(100% - 1rem);
+    text-align: left;
+    letter-spacing: 0.03em;
+  }
+  .nav-item:hover { color: var(--gold-light); border-color: var(--border); background: var(--surface); }
+  .nav-item.active { color: var(--gold); border-color: rgba(201,169,110,0.25); background: rgba(201,169,110,0.06); }
+  .nav-item .icon { font-size: 0.85rem; width: 1.1rem; text-align: center; }
+
+  /* ── MAIN CONTENT ── */
+  .main { padding: 2rem; overflow-y: auto; }
+
+  /* ── PANELS ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-header {
+    margin-bottom: 1.75rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.75rem;
+    font-weight: 400;
+    color: var(--gold-light);
+  }
+  .panel-desc {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s;
+  }
+  .card:hover { border-color: rgba(201,169,110,0.2); }
+  .card-title {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .card-title .badge {
+    background: rgba(201,169,110,0.12);
+    color: var(--gold);
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 400;
+    padding: 0.15rem 0.6rem;
+    border-radius: 2rem;
+    border: 1px solid rgba(201,169,110,0.3);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  /* ── FORM ELEMENTS ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.cols-1 { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  label {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  label .hint {
+    font-weight: 300;
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    letter-spacing: 0.05em;
+    text-transform: none;
+  }
+
+  input[type="text"], input[type="datetime-local"], input[type="url"], input[type="tel"],
+  select, textarea {
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    padding: 0.6rem 0.85rem;
+    font-family: 'Lato', sans-serif;
+    font-size: 0.83rem;
+    font-weight: 300;
+    color: var(--text);
+    background: var(--surface2);
+    transition: border-color 0.3s;
+    outline: none;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(201,169,110,0.1);
+  }
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  /* ── TOGGLE ── */
+  .toggle-group { display: flex; align-items: center; gap: 0.75rem; }
+  .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: var(--border); border-radius: 22px; transition: 0.25s;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .toggle-slider:before {
+    content: ''; position: absolute;
+    width: 16px; height: 16px;
+    left: 3px; top: 2px;
+    background: var(--text-muted);
+    border-radius: 50%; transition: 0.25s;
+  }
+  .toggle input:checked + .toggle-slider { background: rgba(201,169,110,0.3); border-color: var(--gold); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(18px); background: var(--gold); }
+  .toggle-label { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.05em; }
+
+  /* ── STORY ITEMS ── */
+  .story-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .story-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    transition: border-color 0.2s;
+  }
+  .story-item:hover { border-color: rgba(201,169,110,0.2); }
+  .story-item-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.85rem; }
+  .story-num {
+    width: 1.5rem; height: 1.5rem;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+  }
+  .story-title-label {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .btn-remove {
+    margin-left: auto;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 0.4rem;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Josefin Sans', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .btn-remove:hover { border-color: var(--danger); color: var(--danger); }
+
+  .btn-add {
+    background: transparent;
+    border: 1px dashed rgba(201,169,110,0.3);
+    border-radius: 0.75rem;
+    padding: 0.75rem;
+    width: 100%;
+    font-size: 0.72rem;
+    color: var(--gold);
+    cursor: pointer;
+    font-family: 'Josefin Sans', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+  }
+  .btn-add:hover { background: rgba(201,169,110,0.07); border-style: solid; }
+
+  /* ── COLOR SWATCHES ── */
+  .color-list { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+  .color-swatch {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    transition: border-color 0.2s;
+  }
+  .color-swatch:hover { border-color: rgba(201,169,110,0.3); }
+  .color-preview { width: 20px; height: 20px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.15); }
+  .color-swatch input[type="text"] { width: 90px; padding: 0.2rem 0.4rem; font-size: 0.75rem; background: transparent; border: none; box-shadow: none; color: var(--text); }
+  .color-swatch input[type="text"]:focus { box-shadow: none; border: none; }
+  .btn-remove-color { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.8rem; padding: 0; transition: color 0.2s; }
+  .btn-remove-color:hover { color: var(--danger); }
+
+  /* ── AYAT ITEMS ── */
+  .ayat-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .ayat-item::before {
+    content: '"';
+    position: absolute; top: -0.5rem; left: 0.75rem;
+    font-size: 4rem; color: var(--gold); opacity: 0.06;
+    font-family: 'Playfair Display', serif; line-height: 1;
+    pointer-events: none;
+  }
+  .ayat-item:hover { border-color: rgba(201,169,110,0.2); }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+  /* ── NOTIFICATION ── */
+  .notif {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 0.78rem;
+    font-family: 'Josefin Sans', sans-serif;
+    letter-spacing: 0.1em;
+    font-weight: 400;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .notif.show { transform: translateY(0); opacity: 1; }
+  .notif.success { border-color: rgba(201,169,110,0.4); color: var(--gold-light); }
+
+  /* ── IMAGE PREVIEW ── */
+  .img-preview-wrap {
+    margin-top: 0.5rem;
+    border-radius: 0.6rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    display: none;
+    position: relative;
+  }
+  .img-preview-wrap.visible { display: block; }
+  .img-preview-wrap img {
+    width: 100%;
+    display: block;
+    object-fit: cover;
+    max-height: 180px;
+  }
+  .img-preview-wrap.thumb img { max-height: 120px; object-fit: contain; padding: 0.5rem; }
+  .img-preview-error {
+    padding: 0.6rem 0.85rem;
+    font-size: 0.72rem;
+    color: var(--danger);
+    font-family: 'Josefin Sans', sans-serif;
+    letter-spacing: 0.08em;
+    display: none;
+  }
+  .img-preview-error.visible { display: block; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid.cols-3 { grid-template-columns: 1fr; }
+    .main { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-title">Wedding <span>Editor</span></div>
+    <div class="header-subtitle">Dashboard Pengelola Undangan</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:0.75rem;">
+    <span id="save-indicator" style="font-size:0.65rem;color:var(--text-muted);letter-spacing:0.12em;font-family:'Josefin Sans',sans-serif;opacity:0;transition:opacity 0.4s;">💾 TERSIMPAN</span>
+    <button class="btn-download" style="border-color:rgba(255,255,255,0.15);color:var(--text-muted);font-size:0.65rem;" onclick="resetData()" title="Reset semua data ke default">↺ Reset</button>
+    <button class="btn-download" onclick="downloadHTML()">⬇ Download index.html</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-label">Konten Utama</div>
+    <button class="nav-item active" onclick="showPanel('pengaturan', this)"><span class="icon">⚙️</span> Pengaturan Dasar</button>
+    <button class="nav-item" onclick="showPanel('mempelai', this)"><span class="icon">💑</span> Data Mempelai</button>
+    <button class="nav-item" onclick="showPanel('acara', this)"><span class="icon">📅</span> Info Acara</button>
+    <button class="nav-item" onclick="showPanel('kisah', this)"><span class="icon">💌</span> Kisah Cinta</button>
+    <button class="nav-item" onclick="showPanel('ayat', this)"><span class="icon">📖</span> Ayat & Quotes</button>
+    <div class="sidebar-label" style="margin-top:0.5rem;">Fitur Lainnya</div>
+    <button class="nav-item" onclick="showPanel('gift', this)"><span class="icon">🎁</span> Love Gift</button>
+    <button class="nav-item" onclick="showPanel('galeri', this)"><span class="icon">🖼️</span> Galeri Foto</button>
+    <button class="nav-item" onclick="showPanel('seo', this)"><span class="icon">🌐</span> SEO & Meta</button>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ───── PENGATURAN DASAR ───── -->
+    <div class="panel active" id="panel-pengaturan">
+      <div class="panel-header">
+        <div class="panel-title">⚙️ Pengaturan Dasar</div>
+        <div class="panel-desc">Konfigurasi utama undangan pernikahan</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tanggal & Waktu Pernikahan</div>
+        <div class="form-grid cols-1">
+          <div class="form-group">
+            <label>Tanggal & Waktu <span class="hint">(digunakan untuk countdown)</span></label>
+            <input type="datetime-local" id="weddingDate" value="" placeholder="Pilih tanggal & waktu">
+          </div>
+          <div class="form-group">
+            <label>Tanggal Tampil <span class="hint">(teks yang muncul di website)</span></label>
+            <input type="text" id="tanggalTampil" value="" placeholder="contoh: Kamis, 27 Mei 2027">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">API Komentar <span class="badge">Opsional</span></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>URL API</label>
+            <input type="url" id="apiUrl" value="" placeholder="https://api.ulems.my.id/">
+          </div>
+          <div class="form-group">
+            <label>Access Key</label>
+            <input type="text" id="accessKey" value="" placeholder="Access key dari dashboard">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Tampilan & Audio</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Path Musik <span class="hint">(kosongkan jika tidak pakai)</span></label>
+            <input type="text" id="audioSrc" value="" placeholder="./assets/music/sound.mp3">
+          </div>
+          <div class="form-group">
+            <label>Tema Default</label>
+            <select id="theme">
+              <option value="auto">Auto (Ikuti Sistem)</option>
+              <option value="dark">Dark</option>
+              <option value="light">Light</option>
+            </select>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="toggle-group">
+          <label class="toggle">
+            <input type="checkbox" id="confetti" checked>
+            <span class="toggle-slider"></span>
+          </label>
+          <span class="toggle-label">Aktifkan efek confetti</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── DATA MEMPELAI ───── -->
+    <div class="panel" id="panel-mempelai">
+      <div class="panel-header">
+        <div class="panel-title">💑 Data Mempelai</div>
+        <div class="panel-desc">Informasi pengantin pria dan wanita</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🤵 Mempelai Pria</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nama Lengkap</label>
+            <input type="text" id="groomNamaLengkap" value="" placeholder="contoh: Yoki Valianda, S.Kom.">
+          </div>
+          <div class="form-group">
+            <label>Nama Panggilan</label>
+            <input type="text" id="groomNamaPanggilan" value="" placeholder="contoh: Yoki">
+          </div>
+          <div class="form-group">
+            <label>Anak Ke</label>
+            <input type="text" id="groomAnakKe" value="" placeholder="contoh: Putra ke-1">
+          </div>
+          <div class="form-group">
+            <label>Path Foto</label>
+            <input type="text" id="groomFoto" value="" placeholder="./assets/images/cowo.jpg" oninput="imgPreview('groomFoto','groomFoto-prev','groomFoto-err')">
+            <div class="img-preview-wrap thumb" id="groomFoto-prev"><img src="" alt="Preview Foto Pria"></div>
+            <div class="img-preview-error" id="groomFoto-err">⚠ Gambar tidak ditemukan</div>
+          </div>
+          <div class="form-group">
+            <label>Nama Ayah</label>
+            <input type="text" id="groomNamaAyah" value="" placeholder="contoh: Bapak Selamet">
+          </div>
+          <div class="form-group">
+            <label>Nama Ibu</label>
+            <input type="text" id="groomNamaIbu" value="" placeholder="contoh: Ibu Rosdiah">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">👰 Mempelai Wanita</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nama Lengkap</label>
+            <input type="text" id="brideNamaLengkap" value="" placeholder="contoh: Mega Haryanti, S.E">
+          </div>
+          <div class="form-group">
+            <label>Nama Panggilan</label>
+            <input type="text" id="brideNamaPanggilan" value="" placeholder="contoh: Mega">
+          </div>
+          <div class="form-group">
+            <label>Anak Ke</label>
+            <input type="text" id="brideAnakKe" value="" placeholder="contoh: Putri ke-1">
+          </div>
+          <div class="form-group">
+            <label>Path Foto</label>
+            <input type="text" id="brideFoto" value="" placeholder="./assets/images/cewe.jpg" oninput="imgPreview('brideFoto','brideFoto-prev','brideFoto-err')">
+            <div class="img-preview-wrap thumb" id="brideFoto-prev"><img src="" alt="Preview Foto Wanita"></div>
+            <div class="img-preview-error" id="brideFoto-err">⚠ Gambar tidak ditemukan</div>
+          </div>
+          <div class="form-group">
+            <label>Nama Ayah</label>
+            <input type="text" id="brideNamaAyah" value="" placeholder="contoh: Bapak Yanto">
+          </div>
+          <div class="form-group">
+            <label>Nama Ibu</label>
+            <input type="text" id="brideNamaIbu" value="" placeholder="contoh: Ibu Beti">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ───── INFO ACARA ───── -->
+    <div class="panel" id="panel-acara">
+      <div class="panel-header">
+        <div class="panel-title">📅 Info Acara</div>
+        <div class="panel-desc">Waktu, lokasi, dan dress code</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Waktu Acara</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Waktu Akad</label>
+            <input type="text" id="akadWaktu" value="" placeholder="contoh: Pukul 10.00 WIB - Selesai">
+          </div>
+          <div class="form-group">
+            <label>Waktu Resepsi</label>
+            <input type="text" id="resepsiWaktu" value="" placeholder="contoh: Pukul 13.00 WIB - Selesai">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Lokasi</div>
+        <div class="form-grid cols-1">
+          <div class="form-group">
+            <label>Alamat Lengkap</label>
+            <textarea id="lokasiAlamat" placeholder="contoh: Jl. Tj. Sari, Bukit Baru, Kec. Ilir Bar. I, Kota Palembang 30961"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Link Google Maps</label>
+            <input type="url" id="googleMapsUrl" value="" placeholder="https://maps.app.goo.gl/...">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Dress Code</div>
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label>Keterangan Dress Code</label>
+          <input type="text" id="dressCodeKeterangan" value="" placeholder="contoh: Busana batik dan bersepatu.">
+        </div>
+        <label style="margin-bottom:0.5rem;display:block;">Warna <span class="hint">(nama warna CSS atau hex, misal: white / #ffffff)</span></label>
+        <div class="color-list" id="colorList"></div>
+        <button class="btn-add" style="margin-top:0.75rem;width:auto;padding:0.4rem 1rem;" onclick="addColor()">+ Tambah Warna</button>
+      </div>
+    </div>
+
+    <!-- ───── KISAH CINTA ───── -->
+    <div class="panel" id="panel-kisah">
+      <div class="panel-header">
+        <div class="panel-title">💌 Kisah Cinta</div>
+        <div class="panel-desc">Timeline perjalanan cinta mempelai</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Love Story</div>
+        <div class="story-list" id="storyList"></div>
+        <button class="btn-add" onclick="addStory()">+ Tambah Cerita</button>
+      </div>
+    </div>
+
+    <!-- ───── AYAT ───── -->
+    <div class="panel" id="panel-ayat">
+      <div class="panel-header">
+        <div class="panel-title">📖 Ayat & Quotes</div>
+        <div class="panel-desc">Ayat Al-Qur'an yang ditampilkan di undangan</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Daftar Ayat</div>
+        <div id="ayatList"></div>
+        <button class="btn-add" onclick="addAyat()">+ Tambah Ayat</button>
+      </div>
+    </div>
+
+    <!-- ───── LOVE GIFT ───── -->
+    <div class="panel" id="panel-gift">
+      <div class="panel-header">
+        <div class="panel-title">🎁 Love Gift</div>
+        <div class="panel-desc">Informasi amplop digital / hadiah</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💸 Transfer Bank</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nama Penerima</label>
+            <input type="text" id="tfNamaPenerima" value="" placeholder="contoh: Nama penerima transfer">
+          </div>
+          <div class="form-group">
+            <label>Nama Bank</label>
+            <input type="text" id="tfNamaBank" value="" placeholder="contoh: Bank Central Asia">
+          </div>
+          <div class="form-group full">
+            <label>Nomor Rekening</label>
+            <input type="text" id="tfNoRekening" value="" placeholder="contoh: 1234567890">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📱 QRIS</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nama Penerima</label>
+            <input type="text" id="qrisNamaPenerima" value="" placeholder="contoh: Nama penerima QRIS">
+          </div>
+          <div class="form-group">
+            <label>Path Foto QRIS</label>
+            <input type="text" id="qrisFoto" value="" placeholder="./assets/images/donate.png" oninput="imgPreview('qrisFoto','qrisFoto-prev','qrisFoto-err')">
+            <div class="img-preview-wrap thumb" id="qrisFoto-prev"><img src="" alt="Preview QRIS"></div>
+            <div class="img-preview-error" id="qrisFoto-err">⚠ Gambar tidak ditemukan</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎀 Kirim Hadiah Fisik</div>
+        <div class="form-grid cols-1">
+          <div class="form-group">
+            <label>Nama Penerima</label>
+            <input type="text" id="giftNamaPenerima" value="" placeholder="contoh: Nama penerima hadiah">
+          </div>
+          <div class="form-group">
+            <label>No. HP</label>
+            <input type="tel" id="giftNoHp" value="" placeholder="contoh: 0812345678">
+          </div>
+          <div class="form-group">
+            <label>Alamat Pengiriman</label>
+            <textarea id="giftAlamat" placeholder="contoh: RT 10 RW 02, Desa ..., Kab. ..., Provinsi ..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── GALERI FOTO ───── -->
+    <div class="panel" id="panel-galeri">
+      <div class="panel-header">
+        <div class="panel-title">🖼️ Galeri Foto</div>
+        <div class="panel-desc">6 foto carousel (2 baris × 3 foto) — isi path sesuai file di folder assets/galeri/</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🖼️ Baris Pertama (Foto 1–3)</div>
+        <div class="form-grid cols-3" id="galeriRow1">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🖼️ Baris Kedua (Foto 4–6)</div>
+        <div class="form-grid cols-3" id="galeriRow2">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📸 Foto Utama</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Foto Bersama <span class="hint">(Hero & Welcome screen)</span></label>
+            <input type="text" id="fotoBersama" value="" placeholder="./assets/images/bg2.jpg" oninput="imgPreview('fotoBersama','fotoBersama-prev','fotoBersama-err')">
+            <div class="img-preview-wrap" id="fotoBersama-prev"><img src="" alt="Preview Foto Bersama"></div>
+            <div class="img-preview-error" id="fotoBersama-err">⚠ Gambar tidak ditemukan</div>
+          </div>
+          <div class="form-group">
+            <label>Foto Icon <span class="hint">(loading screen)</span></label>
+            <input type="text" id="fotoIcon" value="" placeholder="./assets/images/icon-192x192.png" oninput="imgPreview('fotoIcon','fotoIcon-prev','fotoIcon-err')">
+            <div class="img-preview-wrap thumb" id="fotoIcon-prev"><img src="" alt="Preview Icon"></div>
+            <div class="img-preview-error" id="fotoIcon-err">⚠ Gambar tidak ditemukan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ───── SEO ───── -->
+    <div class="panel" id="panel-seo">
+      <div class="panel-header">
+        <div class="panel-title">🌐 SEO & Meta</div>
+        <div class="panel-desc">Pengaturan mesin pencari dan tampilan share link</div>
+      </div>
+      <div class="card">
+        <div class="form-grid cols-1">
+          <div class="form-group">
+            <label>Judul Website</label>
+            <input type="text" id="siteTitle" value="" placeholder="contoh: Website Undangan Pernikahan ... Secara Online">
+          </div>
+          <div class="form-group">
+            <label>Deskripsi</label>
+            <textarea id="siteDesc" placeholder="contoh: Website Undangan Pernikahan ... dan ..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>URL Website</label>
+            <input type="url" id="siteUrl" value="" placeholder="https://domain-kamu.com">
+          </div>
+          <div class="form-group">
+            <label>URL Gambar OG (Share Preview)</label>
+            <input type="url" id="ogImage" value="" placeholder="https://domain-kamu.com/assets/images/bg.webp">
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- NOTIF -->
+<div class="notif" id="notif">✅ index.html berhasil didownload!</div>
+
+<script>
+// ─── DATA AWAL ────────────────────────────────────
+let stories = [];
+
+let ayats = [];
+
+let colors = [];
+
+let galeri = ['', '', '', '', '', ''];
+
+// ─── NAV ─────────────────────────────────────────
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ─── RENDER STORY ─────────────────────────────────
+function renderStories() {
+  const list = document.getElementById('storyList');
+  list.innerHTML = stories.map((s, i) => `
+    <div class="story-item">
+      <div class="story-item-header">
+        <div class="story-num">${i+1}</div>
+        <span class="story-title-label">Cerita ${i+1}</span>
+        <button class="btn-remove" onclick="removeStory(${i})">Hapus</button>
+      </div>
+      <div class="form-grid cols-3" style="margin-bottom:0.5rem;">
+        <div class="form-group">
+          <label>Emoji</label>
+          <input type="text" value="${s.emoji}" oninput="stories[${i}].emoji=this.value" style="font-size:1.2rem;">
+        </div>
+        <div class="form-group" style="grid-column:span 2;">
+          <label>Judul</label>
+          <input type="text" value="${s.judul}" oninput="stories[${i}].judul=this.value">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cerita</label>
+        <textarea oninput="stories[${i}].cerita=this.value">${s.cerita}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addStory() {
+  stories.push({ emoji: '✨', judul: 'Judul Cerita Baru', cerita: 'Tulis cerita di sini...' });
+  renderStories();
+}
+
+function removeStory(i) {
+  stories.splice(i, 1);
+  renderStories();
+}
+
+// ─── RENDER AYAT ─────────────────────────────────
+function renderAyats() {
+  const list = document.getElementById('ayatList');
+  list.innerHTML = ayats.map((a, i) => `
+    <div class="ayat-item">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+        <span style="font-size:0.75rem;font-weight:500;color:var(--ink-mid);">Ayat ${i+1}</span>
+        <button class="btn-remove" onclick="removeAyat(${i})">Hapus</button>
+      </div>
+      <div class="form-grid cols-1">
+        <div class="form-group">
+          <label>Teks Ayat</label>
+          <textarea oninput="ayats[${i}].teks=this.value">${a.teks}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Sumber</label>
+          <input type="text" value="${a.sumber}" oninput="ayats[${i}].sumber=this.value">
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addAyat() {
+  ayats.push({ teks: 'Tulis teks ayat di sini.', sumber: 'QS. ...' });
+  renderAyats();
+}
+
+function removeAyat(i) {
+  ayats.splice(i, 1);
+  renderAyats();
+}
+
+// ─── RENDER GALERI ───────────────────────────────
+function renderGaleri() {
+  [1, 2].forEach(row => {
+    const el = document.getElementById('galeriRow' + row);
+    el.innerHTML = [0, 1, 2].map(i => {
+      const idx = (row - 1) * 3 + i;
+      const val = galeri[idx] || '';
+      return `
+        <div class="form-group">
+          <label>Foto ${idx + 1}</label>
+          <input type="text" id="galeri_${idx}" value="${val}" oninput="galeri[${idx}]=this.value;imgPreview('galeri_${idx}','galeri_prev_${idx}','galeri_err_${idx}')" placeholder="./assets/galeri/${idx + 1}.jpg">
+          <div class="img-preview-wrap${val ? ' visible' : ''}" id="galeri_prev_${idx}"><img src="${val}" alt="Preview Foto ${idx + 1}"></div>
+          <div class="img-preview-error" id="galeri_err_${idx}">⚠ Gambar tidak ditemukan</div>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+// ─── RENDER COLORS ────────────────────────────────
+function renderColors() {
+  const list = document.getElementById('colorList');
+  list.innerHTML = colors.map((c, i) => `
+    <div class="color-swatch">
+      <div class="color-preview" style="background:${c}" id="cp${i}"></div>
+      <input type="text" value="${c}" oninput="colors[${i}]=this.value;document.getElementById('cp${i}').style.background=this.value">
+      <button class="btn-remove-color" onclick="removeColor(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addColor() {
+  colors.push('#ffffff');
+  renderColors();
+}
+
+function removeColor(i) {
+  if (colors.length <= 1) return;
+  colors.splice(i, 1);
+  renderColors();
+}
+
+// ─── IMAGE PREVIEW ───────────────────────────────
+function imgPreview(inputId, previewId, errorId, thumbMode) {
+  const src = document.getElementById(inputId)?.value?.trim();
+  const wrap = document.getElementById(previewId);
+  const err  = document.getElementById(errorId);
+  if (!wrap || !err) return;
+  if (!src) {
+    wrap.classList.remove('visible');
+    err.classList.remove('visible');
+    return;
+  }
+  const img = wrap.querySelector('img');
+  img.onload  = () => { wrap.classList.add('visible'); err.classList.remove('visible'); };
+  img.onerror = () => { wrap.classList.remove('visible'); err.classList.add('visible'); };
+  img.src = src;
+}
+
+
+function showNotif(msg, success = true) {
+  const el = document.getElementById('notif');
+  el.textContent = (success ? '✅ ' : '⚠️ ') + msg;
+  el.className = 'notif show' + (success ? ' success' : '');
+  setTimeout(() => el.className = 'notif', 3000);
+}
+
+// ─── COLLECT DATA ─────────────────────────────────
+function v(id) { return document.getElementById(id)?.value || ''; }
+function checked(id) { return document.getElementById(id)?.checked; }
+
+function getData() {
+  const dt = v('weddingDate').replace('T', ' ') + ':00';
+  return {
+    weddingDate: dt,
+    apiUrl: v('apiUrl'),
+    accessKey: v('accessKey'),
+    audioSrc: v('audioSrc'),
+    confetti: checked('confetti'),
+    theme: v('theme'),
+    tanggalTampil: v('tanggalTampil'),
+    groomNamaLengkap: v('groomNamaLengkap'),
+    groomNamaPanggilan: v('groomNamaPanggilan'),
+    groomAnakKe: v('groomAnakKe'),
+    groomFoto: v('groomFoto'),
+    groomNamaAyah: v('groomNamaAyah'),
+    groomNamaIbu: v('groomNamaIbu'),
+    brideNamaLengkap: v('brideNamaLengkap'),
+    brideNamaPanggilan: v('brideNamaPanggilan'),
+    brideAnakKe: v('brideAnakKe'),
+    brideFoto: v('brideFoto'),
+    brideNamaAyah: v('brideNamaAyah'),
+    brideNamaIbu: v('brideNamaIbu'),
+    akadWaktu: v('akadWaktu'),
+    resepsiWaktu: v('resepsiWaktu'),
+    lokasiAlamat: v('lokasiAlamat'),
+    googleMapsUrl: v('googleMapsUrl'),
+    dressCodeKeterangan: v('dressCodeKeterangan'),
+    colors: [...colors],
+    stories: stories.map(s => ({...s})),
+    ayats: ayats.map(a => ({...a})),
+    tfNamaPenerima: v('tfNamaPenerima'),
+    tfNamaBank: v('tfNamaBank'),
+    tfNoRekening: v('tfNoRekening'),
+    qrisNamaPenerima: v('qrisNamaPenerima'),
+    qrisFoto: v('qrisFoto'),
+    giftNamaPenerima: v('giftNamaPenerima'),
+    giftNoHp: v('giftNoHp'),
+    giftAlamat: v('giftAlamat'),
+    galeri: galeri.map(g => g),
+    fotoBersama: v('fotoBersama'),
+    fotoIcon: v('fotoIcon'),
+    siteTitle: v('siteTitle'),
+    siteDesc: v('siteDesc'),
+    siteUrl: v('siteUrl'),
+    ogImage: v('ogImage'),
+  };
+}
+
+// ─── HTML TEMPLATE ────────────────────────────────
+function generateHTML(d) {
+  const groomBride = `${d.groomNamaPanggilan} &amp; ${d.brideNamaPanggilan}`;
+
+  const colorSwatches = d.colors.map((c, i) =>
+    `<div class="shadow rounded-circle border border-secondary" style="width: 3rem; height: 3rem; background-color: ${c};${i > 0 ? ' margin-left: -1rem;' : ''}"></div>`
+  ).join('\n                                ');
+
+  const makeCarouselItems = (photos) => photos.map((src, i) => {
+    const safeSrc = src && src.trim() ? src.trim() : './assets/images/placeholder.webp';
+    return `
+                                    <div class="carousel-item${i === 0 ? ' active' : ''}">
+                                        <img src="./assets/images/placeholder.webp" data-src="${safeSrc}" alt="image ${i+1}" class="d-block img-fluid cursor-pointer" onclick="undangan.guest.modal(this)">
+                                    </div>`;
+  }).join('');
+
+  const makeCarouselIndicators = (id, count) => Array.from({length: count}, (_, i) =>
+    `<button type="button" data-bs-target="#${id}" data-bs-slide-to="${i}"${i === 0 ? ' class="active" aria-current="true"' : ''} aria-label="Slide ${i+1}"></button>`
+  ).join('\n                                    ');
+
+  const galeri1 = (d.galeri || []).slice(0, 3);
+  const galeri2 = (d.galeri || []).slice(3, 6);
+
+  const storyItems = d.stories.map((s, i) => `
+                                    <div class="row">
+                                        <div class="col-auto position-relative">
+                                            <p class="position-relative d-flex justify-content-center align-items-center bg-theme-auto border border-secondary border-2 opacity-100 rounded-circle m-0 p-0 z-1" style="width: 2rem; height: 2rem;">${i+1}</p>
+                                            <hr class="position-absolute top-0 start-50 translate-middle-x border border-secondary h-100 z-0 opacity-100 m-0 rounded-4 shadow-none">
+                                        </div>
+                                        <div class="col mt-1 mb-3 ps-0">
+                                            <p class="fw-bold mb-2">${s.emoji} ${s.judul}</p>
+                                            <p class="small mb-0">
+                                                ${s.cerita}
+                                            </p>
+                                        </div>
+                                    </div>`).join('');
+
+  const ayatItems = d.ayats.map(a => `
+                        <div class="bg-theme-auto mt-4 p-3 shadow rounded-4" data-aos="fade-down" data-aos-duration="2000">
+                            <p class="p-1 mb-2" style="font-size: 0.95rem;">${a.teks}</p>
+                            <p class="m-0 p-0 text-theme-auto" style="font-size: 0.95rem;">${a.sumber}</p>
+                        </div>`).join('');
+
+  const audioAttr = d.audioSrc ? ` data-audio="${d.audioSrc}"` : '';
+  const apiAttrs = (d.apiUrl && d.accessKey) ? ` data-key="${d.accessKey}" data-url="${d.apiUrl}"` : '';
+
+  return `<!doctype html>
+<html lang="id" data-bs-theme="${d.theme}">
+
+<head>
+    <!-- Common Tag -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>${d.siteTitle}</title>
+
+    <!-- SEO Tag -->
+    <meta name="author" content="dewanakl">
+    <meta name="language" content="id">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="googlebot" content="index, follow, max-image-preview:large">
+    <meta name="title" content="${d.siteTitle}">
+    <meta name="description" content="${d.siteDesc}">
+    <meta name="keywords" content="undangan, wedding, undangan digital, undangan online, wedding invitation">
+    <meta property="og:title" content="${d.siteTitle}">
+    <meta property="og:description" content="${d.siteDesc}">
+    <meta property="og:image" content="${d.ogImage}">
+    <meta property="og:image:secure_url" content="${d.ogImage}">
+    <meta property="og:image:type" content="image/webp">
+    <meta property="og:image:alt" content="${d.siteTitle}">
+    <meta property="og:image:width" content="980">
+    <meta property="og:image:height" content="980">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="id_ID">
+    <meta property="og:url" content="${d.siteUrl}">
+    <meta property="og:site_name" content="${d.siteTitle}">
+
+    <!-- Appearance -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="${d.siteTitle}">
+    <meta name="theme-color" content="#000000">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="canonical" href="${d.siteUrl}/">
+    <link rel="shortcut icon" type="image/x-icon" href="${d.siteUrl}/assets/favicon.ico">
+    <link rel="apple-touch-icon" sizes="192x192" href="${d.siteUrl}/assets/images/icon-192x192.png">
+    <link rel="icon" type="image/x-icon" href="${d.siteUrl}/assets/favicon.ico">
+
+    <!-- Preconnect CDN -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+
+    <!-- Preload Resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap" as="style">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&display=swap" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" integrity="sha256-zRgmWB5PK4CvTx4FiXsxbHaYRBBjz/rvu97sOC7kzXI=" crossorigin="anonymous" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous" as="style">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha256-NfRUfZNkERrKSFA0c1a8VmCplPDYtpTYj5lQmKe1R/o=" crossorigin="anonymous" as="script">
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sacramento&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic&display=swap">
+
+    <!-- Dependencies CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" integrity="sha256-zRgmWB5PK4CvTx4FiXsxbHaYRBBjz/rvu97sOC7kzXI=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/guest.css">
+
+    <!-- Dependencies JS -->
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha256-NfRUfZNkERrKSFA0c1a8VmCplPDYtpTYj5lQmKe1R/o=" crossorigin="anonymous"><\/script>
+    <script src="./dist/guest.js"><\/script>
+</head>
+
+<body${apiAttrs}${audioAttr} data-confetti="${d.confetti}" data-time="${d.weddingDate}">
+
+    <!-- Root Invitation -->
+    <div class="row m-0 p-0 opacity-0" id="root">
+
+        <!-- Desktop mode -->
+        <div class="sticky-top vh-100 d-none d-sm-block col-sm-5 col-md-6 col-lg-7 col-xl-8 col-xxl-9 overflow-y-hidden m-0 p-0">
+            <div class="position-relative bg-white-black d-flex justify-content-center align-items-center vh-100">
+                <div class="d-flex position-absolute w-100 h-100">
+                    <div class="position-relative overflow-hidden vw-100">
+                        <div class="position-absolute h-100 w-100 slide-desktop" style="opacity: 0;">
+                            <img src="./assets/images/placeholder.webp" data-src="https://picsum.photos/1000/1000?random=7" alt="bg" class="bg-cover-home" style="mask-image: none; opacity: 30%;">
+                        </div>
+                        <div class="position-absolute h-100 w-100 slide-desktop" style="opacity: 0;">
+                            <img src="./assets/images/placeholder.webp" data-src="https://picsum.photos/1000/1000?random=8" alt="bg" class="bg-cover-home" style="mask-image: none; opacity: 30%;">
+                        </div>
+                        <div class="position-absolute h-100 w-100 slide-desktop" style="opacity: 0;">
+                            <img src="./assets/images/placeholder.webp" data-src="https://picsum.photos/1000/1000?random=9" alt="bg" class="bg-cover-home" style="mask-image: none; opacity: 30%;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center p-4 bg-overlay-auto rounded-5">
+                    <h2 class="font-esthetic mb-4" style="font-size: 2rem;">${groomBride}</h2>
+                    <p class="m-0" style="font-size: 1rem;">${d.tanggalTampil}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smartphone mode -->
+        <div class="col-sm-7 col-md-6 col-lg-5 col-xl-4 col-xxl-3 m-0 p-0">
+            <!-- Main Content -->
+            <main data-bs-spy="scroll" data-bs-target="#navbar-menu" data-bs-root-margin="25% 0% 0% 0%" data-bs-smooth-scroll="true" tabindex="0">
+
+                <!-- Home -->
+                <section id="home" class="bg-light-dark position-relative overflow-hidden p-0 m-0">
+                    <img src="./assets/images/placeholder.webp" data-src="${d.fotoBersama}" alt="bg" class="position-absolute opacity-25 top-50 start-50 translate-middle bg-cover-home">
+
+                    <div class="position-relative text-center bg-overlay-auto" style="background-color: unset;">
+                        <h1 class="font-esthetic pt-5 pb-4 fw-medium" style="font-size: 2.25rem;">Undangan Pernikahan</h1>
+
+                        <img src="./assets/images/placeholder.webp" data-src="${d.fotoBersama}" alt="bg" onclick="undangan.guest.modal(this)" class="img-center-crop rounded-circle border border-3 border-light shadow my-4 mx-auto cursor-pointer">
+
+                        <h2 class="font-esthetic my-4" style="font-size: 2.25rem;">${groomBride}</h2>
+                        <p class="my-2" style="font-size: 1.25rem;">${d.tanggalTampil}</p>
+
+                        <button class="btn btn-outline-auto btn-sm shadow rounded-pill px-3 py-1" style="font-size: 0.825rem;">
+                            <i class="fa-solid fa-calendar-check me-2"></i>Save Google Calendar
+                        </button>
+
+                        <div class="d-flex justify-content-center align-items-center mt-4 mb-2">
+                            <div class="mouse-animation border border-secondary border-2 rounded-5 px-2 py-1 opacity-50">
+                                <div class="scroll-animation rounded-4 bg-secondary"></div>
+                            </div>
+                        </div>
+
+                        <p class="pb-4 m-0 text-secondary" style="font-size: 0.825rem;">Scroll Down</p>
+                    </div>
+                </section>
+
+                <!-- Wave Separator -->
+                <div class="svg-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="color-theme-svg no-gap-bottom">
+                        <path fill="currentColor" fill-opacity="1" d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,165.3C672,160,768,96,864,96C960,96,1056,160,1152,154.7C1248,149,1344,75,1392,37.3L1440,0L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                    </svg>
+                </div>
+
+                <!-- Bride -->
+                <section class="bg-white-black text-center" id="bride">
+                    <h2 class="font-arabic py-4 m-0" style="font-size: 2rem;">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</h2>
+                    <h2 class="font-esthetic py-4 m-0" style="font-size: 2rem;">Assalamualaikum Warahmatullahi Wabarakatuh</h2>
+                    <p class="pb-4 px-2 m-0" style="font-size: 0.95rem;">Tanpa mengurangi rasa hormat, kami mengundang Anda untuk berkenan menghadiri acara pernikahan kami:</p>
+
+                    <div class="overflow-x-hidden pb-4">
+
+                        <div class="position-relative">
+                            <div class="position-absolute" style="top: 0%; right: 5%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="opacity-50" data-time="500" data-class="animate-love" viewBox="0 0 16 16">
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
+                                </svg>
+                            </div>
+
+                            <div data-aos="fade-right" data-aos-duration="2000" class="pb-1">
+                                <img src="./assets/images/placeholder.webp" data-src="${d.groomFoto}" alt="cowo" onclick="undangan.guest.modal(this)" class="img-center-crop rounded-circle border border-3 border-light shadow my-4 mx-auto cursor-pointer">
+                                <h2 class="font-esthetic m-0" style="font-size: 2.125rem;">${d.groomNamaLengkap}</h2>
+                                <p class="mt-3 mb-1" style="font-size: 1.25rem;">${d.groomAnakKe}</p>
+                                <p class="mb-0" style="font-size: 0.95rem;">${d.groomNamaAyah}</p>
+                                <p class="mb-0" style="font-size: 0.95rem;">dan</p>
+                                <p class="mb-0" style="font-size: 0.95rem;">${d.groomNamaIbu}</p>
+                            </div>
+
+                            <div class="position-absolute" style="top: 90%; left: 5%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="opacity-50" data-time="2000" data-class="animate-love" viewBox="0 0 16 16">
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <h2 class="font-esthetic mt-4" style="font-size: 4.5rem;">&amp;</h2>
+
+                        <div class="position-relative">
+                            <div class="position-absolute" style="top: 0%; right: 5%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="opacity-50" data-time="3000" data-class="animate-love" viewBox="0 0 16 16">
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
+                                </svg>
+                            </div>
+
+                            <div data-aos="fade-left" data-aos-duration="2000" class="pb-1">
+                                <img src="./assets/images/placeholder.webp" data-src="${d.brideFoto}" alt="cewe" onclick="undangan.guest.modal(this)" class="img-center-crop rounded-circle border border-3 border-light shadow my-4 mx-auto cursor-pointer">
+                                <h2 class="font-esthetic m-0" style="font-size: 2.125rem;">${d.brideNamaLengkap}</h2>
+                                <p class="mt-3 mb-1" style="font-size: 1.25rem;">${d.brideAnakKe}</p>
+                                <p class="mb-0" style="font-size: 0.95rem;">${d.brideNamaAyah}</p>
+                                <p class="mb-0" style="font-size: 0.95rem;">dan</p>
+                                <p class="mb-0" style="font-size: 0.95rem;">${d.brideNamaIbu}</p>
+                            </div>
+
+                            <div class="position-absolute" style="top: 90%; left: 5%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="opacity-50" data-time="2500" data-class="animate-love" viewBox="0 0 16 16">
+                                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Wave Separator -->
+                <div class="svg-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="color-theme-svg no-gap-bottom">
+                        <path fill="currentColor" fill-opacity="1" d="M0,192L40,181.3C80,171,160,149,240,149.3C320,149,400,171,480,165.3C560,160,640,128,720,128C800,128,880,160,960,186.7C1040,213,1120,235,1200,218.7C1280,203,1360,149,1400,122.7L1440,96L1440,0L1400,0C1360,0,1280,0,1200,0C1120,0,1040,0,960,0C880,0,800,0,720,0C640,0,560,0,480,0C400,0,320,0,240,0C160,0,80,0,40,0L0,0Z"></path>
+                    </svg>
+                </div>
+
+                <!-- Firman Allah -->
+                <section class="bg-light-dark pt-2 pb-4">
+                    <div class="container text-center">
+                        <h2 class="font-esthetic pt-2 pb-1 m-0" style="font-size: 2rem;">Allah Subhanahu Wa Ta'ala berfirman</h2>
+                        ${ayatItems}
+                    </div>
+                </section>
+
+                <!-- Love Story -->
+                <section class="bg-light-dark pt-2 pb-4">
+                    <div class="container">
+                        <div class="bg-theme-auto rounded-5 shadow p-3">
+                            <h2 class="font-esthetic text-center py-2 mb-2" style="font-size: 2.125rem;">Kisah Cinta</h2>
+
+                            <div class="position-relative">
+                                <div class="position-absolute d-flex justify-content-center align-items-center top-50 start-50 translate-middle w-100 h-100 bg-overlay-auto z-3" style="opacity: 100%; background-color: unset;">
+                                    <button class="btn btn-outline-auto btn-sm rounded-4 shadow-sm" onclick="undangan.guest.showStory(this.parentNode)"><i class="fa-solid fa-heart fa-bounce me-2"></i>Lihat Story</button>
+                                </div>
+
+                                <div class="overflow-y-scroll overflow-x-hidden p-2 with-scrollbar" style="height: 15rem;">
+                                    ${storyItems}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Wave Separator -->
+                <div class="svg-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="color-theme-svg no-gap-bottom">
+                        <path fill="currentColor" fill-opacity="1" d="M0,96L30,106.7C60,117,120,139,180,154.7C240,171,300,181,360,186.7C420,192,480,192,540,181.3C600,171,660,149,720,154.7C780,160,840,192,900,208C960,224,1020,224,1080,208C1140,192,1200,160,1260,138.7C1320,117,1380,107,1410,101.3L1440,96L1440,0L1410,0C1380,0,1320,0,1260,0C1200,0,1140,0,1080,0C1020,0,960,0,900,0C840,0,780,0,720,0C660,0,600,0,540,0C480,0,420,0,360,0C300,0,240,0,180,0C120,0,60,0,30,0L0,0Z"></path>
+                    </svg>
+                </div>
+
+                <!-- Wedding Date -->
+                <section class="bg-white-black pb-2" id="wedding-date">
+                    <div class="container text-center">
+                        <h2 class="font-esthetic py-4 m-0" style="font-size: 2.25rem;">Moment Bahagia</h2>
+
+                        <div class="border rounded-pill shadow py-2 px-4 mt-2 mb-4">
+                            <div class="row justify-content-center">
+                                <div class="col-3 p-1">
+                                    <p class="d-inline m-0 p-0" style="font-size: 1.25rem;" id="day">0</p><small class="ms-1 me-0 my-0 p-0 d-inline">Hari</small>
+                                </div>
+                                <div class="col-3 p-1">
+                                    <p class="d-inline m-0 p-0" style="font-size: 1.25rem;" id="hour">0</p><small class="ms-1 me-0 my-0 p-0 d-inline">Jam</small>
+                                </div>
+                                <div class="col-3 p-1">
+                                    <p class="d-inline m-0 p-0" style="font-size: 1.25rem;" id="minute">0</p><small class="ms-1 me-0 my-0 p-0 d-inline">Menit</small>
+                                </div>
+                                <div class="col-3 p-1">
+                                    <p class="d-inline m-0 p-0" style="font-size: 1.25rem;" id="second">0</p><small class="ms-1 me-0 my-0 p-0 d-inline">Detik</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="py-2 m-0" style="font-size: 0.95rem;">Dengan memohon rahmat dan ridho Allah Subhanahu Wa Ta'ala, insyaAllah kami akan menyelenggarakan acara:</p>
+
+                        <div class="overflow-x-hidden">
+                            <div class="py-2" data-aos="fade-right" data-aos-duration="1500">
+                                <h2 class="font-esthetic m-0 py-2" style="font-size: 2rem;">Akad</h2>
+                                <p style="font-size: 0.95rem;">${d.akadWaktu}</p>
+                            </div>
+
+                            <div class="py-2" data-aos="fade-left" data-aos-duration="1500">
+                                <h2 class="font-esthetic m-0 py-2" style="font-size: 2rem;">Resepsi</h2>
+                                <p style="font-size: 0.95rem;">${d.resepsiWaktu}</p>
+                            </div>
+                        </div>
+
+                        <p class="py-2 m-0" style="font-size: 0.95rem;">Demi kehangatan bersama, kami memohon kesediaan Anda untuk mengenakan dress code berikut:</p>
+
+                        <div class="py-2" data-aos="fade-down" data-aos-duration="1500">
+                            <div class="d-flex justify-content-center align-items-center mb-3">
+                                ${colorSwatches}
+                            </div>
+                            <p style="font-size: 0.95rem;">${d.dressCodeKeterangan}</p>
+                        </div>
+
+                        <div class="py-2" data-aos="fade-down" data-aos-duration="1500">
+                            <a href="${d.googleMapsUrl}" target="_blank" class="btn btn-outline-auto btn-sm rounded-pill shadow mb-2 px-3"><i class="fa-solid fa-map-location-dot me-2"></i>Lihat Google Maps</a>
+                            <small class="d-block my-1">${d.lokasiAlamat}</small>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gallery -->
+                <section class="bg-white-black pb-5 pt-3" id="gallery">
+                    <div class="container">
+                        <div class="border rounded-5 shadow p-3">
+                            <h2 class="font-esthetic text-center py-2 m-0" style="font-size: 2.25rem;">Galeri</h2>
+
+                            <div id="carousel-image-one" data-aos="fade-up" data-aos-duration="1500" class="carousel slide mt-4" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    ${makeCarouselIndicators('carousel-image-one', galeri1.length)}
+                                </div>
+                                <div class="carousel-inner rounded-4">
+                                    ${makeCarouselItems(galeri1)}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel-image-one" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carousel-image-one" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+
+                            <div id="carousel-image-two" data-aos="fade-up" data-aos-duration="1500" class="carousel slide mt-4" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    ${makeCarouselIndicators('carousel-image-two', galeri2.length)}
+                                </div>
+                                <div class="carousel-inner rounded-4">
+                                    ${makeCarouselItems(galeri2)}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel-image-two" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carousel-image-two" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Wave Separator -->
+                <div class="svg-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="color-theme-svg no-gap-bottom">
+                        <path fill="currentColor" fill-opacity="1" d="M0,96L30,106.7C60,117,120,139,180,154.7C240,171,300,181,360,186.7C420,192,480,192,540,181.3C600,171,660,149,720,154.7C780,160,840,192,900,208C960,224,1020,224,1080,208C1140,192,1200,160,1260,138.7C1320,117,1380,107,1410,101.3L1440,96L1440,0L1410,0C1380,0,1320,0,1260,0C1200,0,1140,0,1080,0C1020,0,960,0,900,0C840,0,780,0,720,0C660,0,600,0,540,0C480,0,420,0,360,0C300,0,240,0,180,0C120,0,60,0,30,0L0,0Z"></path>
+                    </svg>
+                </div>
+
+                <!-- Love Gift -->
+                <section class="bg-light-dark pb-3">
+                    <div class="container text-center">
+                        <h2 class="font-esthetic pt-3 mb-4" style="font-size: 2.25rem;">Love Gift</h2>
+                        <p class="mb-1" style="font-size: 0.95rem;">Dengan hormat, bagi Anda yang ingin memberikan tanda kasih kepada kami, dapat melalui:</p>
+
+                        <div class="bg-theme-auto rounded-4 shadow p-3 mx-4 mt-4 text-start" data-aos="fade-up" data-aos-duration="2500">
+                            <i class="fa-solid fa-money-bill-transfer"></i>
+                            <p class="d-inline">Transfer</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <p class="m-0 p-0" style="font-size: 0.95rem;"><i class="fa-regular fa-user fa-sm me-1"></i>${d.tfNamaPenerima}</p>
+                                <button class="btn btn-outline-auto btn-sm shadow-sm rounded-4 py-0" style="font-size: 0.75rem;" data-bs-toggle="collapse" data-bs-target="#collapseTf"><i class="fa-solid fa-circle-info fa-sm me-1"></i>Info</button>
+                            </div>
+                            <div class="collapse" id="collapseTf">
+                                <hr class="my-2 py-1">
+                                <p class="m-0" style="font-size: 0.9rem;"><i class="fa-solid fa-building-columns me-1"></i>${d.tfNamaBank}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <p class="m-0 p-0" style="font-size: 0.85rem;"><i class="fa-solid fa-credit-card me-1"></i>${d.tfNoRekening}</p>
+                                    <button class="btn btn-outline-auto btn-sm shadow-sm rounded-4 py-0" style="font-size: 0.75rem;" data-copy="${d.tfNoRekening}" onclick="undangan.util.copy(this)"><i class="fa-solid fa-copy"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-theme-auto rounded-4 shadow p-3 mx-4 mt-4 text-start" data-aos="fade-up" data-aos-duration="2500">
+                            <i class="fa-solid fa-qrcode fa-lg"></i>
+                            <p class="d-inline">Qris</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <p class="m-0 p-0" style="font-size: 0.95rem;"><i class="fa-regular fa-user fa-sm me-1"></i>${d.qrisNamaPenerima}</p>
+                                <button class="btn btn-outline-auto btn-sm shadow-sm rounded-4 py-0" style="font-size: 0.75rem;" data-bs-toggle="collapse" data-bs-target="#collapseQris"><i class="fa-solid fa-circle-info fa-sm me-1"></i>Info</button>
+                            </div>
+                            <div class="collapse" id="collapseQris">
+                                <hr class="my-2 py-1">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <img src="./assets/images/placeholder.webp" data-src="${d.qrisFoto}" alt="donate" class="img-fluid rounded-3 mx-auto bg-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-theme-auto rounded-4 shadow p-3 mx-4 mt-4 text-start" data-aos="fade-up" data-aos-duration="2500">
+                            <i class="fa-solid fa-gift fa-lg"></i>
+                            <p class="d-inline">Gift</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <p class="m-0 p-0" style="font-size: 0.95rem;"><i class="fa-regular fa-user fa-sm me-1"></i>${d.giftNamaPenerima}</p>
+                                <button class="btn btn-outline-auto btn-sm shadow-sm rounded-4 py-0" style="font-size: 0.75rem;" data-bs-toggle="collapse" data-bs-target="#collapseGift"><i class="fa-solid fa-circle-info fa-sm me-1"></i>Info</button>
+                            </div>
+                            <div class="collapse" id="collapseGift">
+                                <hr class="my-2 py-1">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <p class="m-0 p-0" style="font-size: 0.85rem;"><i class="fa-solid fa-phone-volume me-1"></i>${d.giftNoHp}</p>
+                                    <button class="btn btn-outline-auto btn-sm shadow-sm rounded-4 py-0" style="font-size: 0.75rem;" data-copy="${d.giftNoHp}" onclick="undangan.util.copy(this)"><i class="fa-solid fa-copy"></i></button>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <p class="my-0 p-0 text-truncate me-2" style="font-size: 0.85rem;"><i class="fa-solid fa-location-dot me-1"></i>${d.giftAlamat}</p>
+                                    <button class="btn btn-outline-auto btn-sm shadow-sm rounded-4 py-0" style="font-size: 0.75rem;" data-copy="${d.giftAlamat}" onclick="undangan.util.copy(this)"><i class="fa-solid fa-copy"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Comment -->
+                <section class="bg-light-dark my-0 pb-0 pt-3" id="comment">
+                    <div class="container">
+                        <div class="border rounded-5 shadow p-3 mb-2">
+                            <h2 class="font-esthetic text-center mt-2 mb-4" style="font-size: 2.25rem;">Ucapan &amp; Doa</h2>
+
+                            <div class="mb-3">
+                                <label for="form-name" class="form-label my-1"><i class="fa-solid fa-person me-2"></i>Nama</label>
+                                <input type="text" class="form-control shadow-sm rounded-4" id="form-name" minlength="2" maxlength="50" placeholder="Isikan Nama Anda" autocomplete="name" data-offline-disabled="false">
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="form-presence" class="form-label my-1"><i class="fa-solid fa-person-circle-question me-2"></i>Presensi</label>
+                                <select class="form-select shadow-sm rounded-4" id="form-presence" autocomplete="off" data-offline-disabled="false">
+                                    <option value="0" selected>Konfirmasi Presensi</option>
+                                    <option value="1">&#9989; Datang</option>
+                                    <option value="2">&#10060; Berhalangan</option>
+                                </select>
+                            </div>
+
+                            <div class="d-block mb-3" id="comment-form-default">
+                                <div id="information" class="alert alert-info alert-dismissible fade show rounded-4" role="alert">
+                                    <button type="button" class="btn-close rounded-4 p-3" data-bs-dismiss="alert" aria-label="Close" onclick="undangan.guest.closeInformation()"></button>
+                                    <p style="font-size: 1.5rem;">Bestieee!!!</p>
+                                    <p class="m-0">Cobain like seperti Instagram, dengan tap tap bagian komentarnya</p>
+                                    <hr class="my-2">
+                                    <p class="m-0">Sama bisa format text seperti Whatsapp lohh... cobainn jugaaa, makaciwww bestieee</p>
+                                </div>
+
+                                <label for="form-comment" class="form-label my-1"><i class="fa-solid fa-comment me-2"></i>Ucapan &amp; Doa</label>
+                                <div class="position-relative">
+                                    <button class="btn btn-secondary btn-sm rounded-4 shadow-sm me-1 my-1 position-absolute bottom-0 end-0" onclick="undangan.comment.gif.open(undangan.comment.gif.default)" aria-label="button gif" data-offline-disabled="false"><i class="fa-solid fa-photo-film"></i></button>
+                                    <textarea class="form-control shadow-sm rounded-4" id="form-comment" rows="4" minlength="1" maxlength="1000" placeholder="Tulis Ucapan dan Doa" autocomplete="off" data-offline-disabled="false"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="d-none mb-3" id="gif-form-default"></div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-primary btn-sm rounded-4 shadow m-1" onclick="undangan.comment.send(this)" data-offline-disabled="false">
+                                    <i class="fa-solid fa-paper-plane me-2"></i>Send
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="py-3" id="comments" data-loading="false"></div>
+                        <nav class="d-flex d-none justify-content-center mt-1 mb-0" id="pagination"></nav>
+                    </div>
+                </section>
+
+                <!-- Wave Separator -->
+                <div class="svg-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" class="color-theme-svg no-gap-bottom">
+                        <path fill="currentColor" fill-opacity="1" d="M0,224L34.3,234.7C68.6,245,137,267,206,266.7C274.3,267,343,245,411,234.7C480,224,549,224,617,213.3C685.7,203,754,181,823,197.3C891.4,213,960,267,1029,266.7C1097.1,267,1166,213,1234,192C1302.9,171,1371,181,1406,186.7L1440,192L1440,320L1405.7,320C1371.4,320,1303,320,1234,320C1165.7,320,1097,320,1029,320C960,320,891,320,823,320C754.3,320,686,320,617,320C548.6,320,480,320,411,320C342.9,320,274,320,206,320C137.1,320,69,320,34,320L0,320Z"></path>
+                    </svg>
+                </div>
+
+                <!-- End Of Invitation -->
+                <section class="bg-white-black py-2 no-gap-bottom">
+                    <div class="container text-center">
+                        <p class="pb-2 pt-4" style="font-size: 0.95rem;">Terima kasih atas perhatian dan doa restu Anda, yang menjadi kebahagiaan serta kehormatan besar bagi kami.</p>
+
+                        <h2 class="font-esthetic" style="font-size: 2rem;">Wassalamualaikum Warahmatullahi Wabarakatuh</h2>
+                        <h2 class="font-arabic pt-4" style="font-size: 2rem;">اَلْحَمْدُ لِلّٰهِ رَبِّ الْعٰلَمِيْنَۙ</h2>
+
+                        <hr class="my-3">
+
+                        <div class="row align-items-center justify-content-between flex-column pb-3">
+                            <div class="col-auto">
+                                <small>Build with<i class="fa-solid fa-heart mx-1"></i>Dewanakl</small>
+                            </div>
+                            <div class="col-auto">
+                                <small><i class="fa-brands fa-github me-1"></i><a target="_blank" href="https://github.com/dewanakl/undangan">github</a></small>
+                                <small><i class="fa-solid fa-chart-simple me-1"></i><a target="_blank" href="https://status.ulems.my.id">status</a></small>
+                                <small><i class="fa-solid fa-music me-1"></i><a target="_blank" href="https://pixabay.com/music/modern-classical-pure-love-304010">music</a></small>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Navbar Bottom -->
+            <nav class="navbar navbar-expand sticky-bottom rounded-top-4 border-top p-0" id="navbar-menu">
+                <ul class="navbar-nav nav-justified w-100 align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#home"><i class="fa-solid fa-house"></i><span class="d-block" style="font-size: 0.7rem;">Home</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#bride"><i class="fa-solid fa-user-group"></i><span class="d-block" style="font-size: 0.7rem;">Mempelai</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#wedding-date"><i class="fa-solid fa-calendar-check"></i><span class="d-block" style="font-size: 0.7rem;">Tanggal</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#gallery"><i class="fa-solid fa-images"></i><span class="d-block" style="font-size: 0.7rem;">Galeri</span></a></li>
+                    <li class="nav-item"><a class="nav-link" href="#comment"><i class="fa-solid fa-comments"></i><span class="d-block" style="font-size: 0.7rem;">Ucapan</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Welcome Page -->
+    <div class="loading-page bg-white-black" id="welcome" style="opacity: 0;">
+        <div class="d-flex justify-content-center align-items-center vh-100 overflow-y-auto">
+            <div class="d-flex flex-column text-center">
+                <h2 class="font-esthetic mb-4" style="font-size: 2.25rem;">The Wedding Of</h2>
+                <img src="./assets/images/placeholder.webp" data-src="${d.fotoBersama}" alt="background" class="img-center-crop rounded-circle border border-3 border-light shadow mb-4 mx-auto">
+                <h2 class="font-esthetic mb-4" style="font-size: 2.25rem;">${groomBride}</h2>
+                <div id="guest-name" data-message="Kepada Yth Bapak/Ibu/Saudara/i"></div>
+                <button type="button" class="btn btn-light shadow rounded-4 mt-3 mx-auto" onclick="undangan.guest.open(this)"><i class="fa-solid fa-envelope-open fa-bounce me-2"></i>Open Invitation</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Button Group -->
+    <div class="d-flex position-fixed flex-column" style="bottom: 10vh; right: 2vh; z-index: 1030;">
+        <button type="button" id="button-theme" class="btn bg-light-dark border btn-sm rounded-circle d-none btn-transparent shadow-sm mt-3" aria-label="Change theme" onclick="undangan.theme.change()">
+            <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+        <button type="button" id="button-music" class="btn bg-light-dark border btn-sm rounded-circle d-none btn-transparent shadow-sm mt-3" aria-label="Change audio" data-offline-disabled="false">
+            <i class="fa-solid fa-circle-pause spin-button"></i>
+        </button>
+    </div>
+
+    <!-- Loading Page -->
+    <div class="loading-page bg-white-black" id="loading" style="opacity: 1;">
+        <div class="d-flex justify-content-center align-items-center vh-100 overflow-y-auto">
+            <div class="d-flex flex-column width-loading text-center">
+                <img src="./assets/images/placeholder.webp" data-src="${d.fotoIcon}" data-fetch-img="high" class="img-fluid mb-3 mx-auto object-fit-cover opacity-0" alt="icon" style="width: 3.5rem; height: 3.5rem;">
+                <div class="progress" role="progressbar" style="height: 0.5rem;" aria-label="progress bar">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                </div>
+                <small class="d-none mt-1 text-theme-auto" id="progress-info" style="font-size: 0.8rem;">Booting application...</small>
+                <noscript>
+                    <small class="mt-1 text-danger">Sorry, this invitation requires javascript to work</small>
+                </noscript>
+            </div>
+        </div>
+        <div class="text-center position-fixed w-100" style="bottom: 8%; left: 0;">
+            <div class="d-flex flex-column">
+                <small class="text-secondary">from</small>
+                <small class="text-theme-auto"><i class="fa-brands fa-github me-1"></i>dewanakl</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Image -->
+    <div class="modal fade" id="modal-image" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border border-0">
+                <div class="modal-body p-0">
+                    <div class="d-flex position-absolute top-0 end-0">
+                        <a class="btn d-flex justify-content-center align-items-center bg-overlay-auto p-2 m-1 rounded-circle border shadow-sm z-1" role="button" target="_blank" href="./assets/images/placeholder.webp" id="button-modal-click">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                        <button class="btn d-flex justify-content-center align-items-center bg-overlay-auto p-2 m-1 rounded-circle border shadow-sm z-1" id="button-modal-download">
+                            <i class="fa-solid fa-download"></i>
+                        </button>
+                        <button class="btn d-flex justify-content-center align-items-center bg-overlay-auto p-2 m-1 rounded-circle border shadow-sm z-1" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                    </div>
+                    <img src="./assets/images/placeholder.webp" class="img-fluid w-100 rounded-4 cursor-pointer" alt="image" id="show-modal-image">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>`;
+}
+
+// ─── DOWNLOAD ─────────────────────────────────────
+function downloadHTML() {
+  const d = getData();
+  const html = generateHTML(d);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  showNotif('index.html berhasil didownload!');
+}
+
+// ─── LOCAL STORAGE ────────────────────────────────
+const LS_KEY = 'wedding_dashboard_data';
+
+let _saveTimer;
+function saveToLocalStorage() {
+  try {
+    const d = getData();
+    d._stories = stories;
+    d._ayats = ayats;
+    d._colors = colors;
+    d._galeri = galeri;
+    localStorage.setItem(LS_KEY, JSON.stringify(d));
+    // Tampilkan indikator tersimpan
+    const ind = document.getElementById('save-indicator');
+    if (ind) {
+      ind.style.opacity = '1';
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(() => ind.style.opacity = '0', 2000);
+    }
+  } catch(e) {
+    console.warn('Gagal menyimpan ke localStorage:', e);
+  }
+}
+
+function loadFromLocalStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+
+    // Restore arrays
+    if (d._stories && Array.isArray(d._stories)) stories = d._stories;
+    if (d._ayats  && Array.isArray(d._ayats))  ayats  = d._ayats;
+    if (d._colors && Array.isArray(d._colors)) colors = d._colors;
+    if (d._galeri && Array.isArray(d._galeri)) galeri = d._galeri;
+
+    // Restore input fields
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (!el || val === undefined) return;
+      if (el.type === 'checkbox') el.checked = val;
+      else el.value = val;
+    };
+
+    setVal('weddingDate',        (d.weddingDate || '').replace(' ', 'T').replace(/:00$/, ''));
+    setVal('tanggalTampil',      d.tanggalTampil);
+    setVal('apiUrl',             d.apiUrl);
+    setVal('accessKey',          d.accessKey);
+    setVal('audioSrc',           d.audioSrc);
+    setVal('theme',              d.theme);
+    setVal('confetti',           d.confetti);
+    setVal('groomNamaLengkap',   d.groomNamaLengkap);
+    setVal('groomNamaPanggilan', d.groomNamaPanggilan);
+    setVal('groomAnakKe',        d.groomAnakKe);
+    setVal('groomFoto',          d.groomFoto);
+    setVal('groomNamaAyah',      d.groomNamaAyah);
+    setVal('groomNamaIbu',       d.groomNamaIbu);
+    setVal('brideNamaLengkap',   d.brideNamaLengkap);
+    setVal('brideNamaPanggilan', d.brideNamaPanggilan);
+    setVal('brideAnakKe',        d.brideAnakKe);
+    setVal('brideFoto',          d.brideFoto);
+    setVal('brideNamaAyah',      d.brideNamaAyah);
+    setVal('brideNamaIbu',       d.brideNamaIbu);
+    setVal('akadWaktu',          d.akadWaktu);
+    setVal('resepsiWaktu',       d.resepsiWaktu);
+    setVal('lokasiAlamat',       d.lokasiAlamat);
+    setVal('googleMapsUrl',      d.googleMapsUrl);
+    setVal('dressCodeKeterangan',d.dressCodeKeterangan);
+    setVal('tfNamaPenerima',     d.tfNamaPenerima);
+    setVal('tfNamaBank',         d.tfNamaBank);
+    setVal('tfNoRekening',       d.tfNoRekening);
+    setVal('qrisNamaPenerima',   d.qrisNamaPenerima);
+    setVal('qrisFoto',           d.qrisFoto);
+    setVal('giftNamaPenerima',   d.giftNamaPenerima);
+    setVal('giftNoHp',           d.giftNoHp);
+    setVal('giftAlamat',         d.giftAlamat);
+    setVal('fotoBersama',        d.fotoBersama);
+    setVal('fotoIcon',           d.fotoIcon);
+    setVal('siteTitle',          d.siteTitle);
+    setVal('siteDesc',           d.siteDesc);
+    setVal('siteUrl',            d.siteUrl);
+    setVal('ogImage',            d.ogImage);
+
+    return true;
+  } catch(e) {
+    console.warn('Gagal memuat dari localStorage:', e);
+    return false;
+  }
+}
+
+// Auto-save setiap perubahan input
+function setupAutoSave() {
+  // Simpan saat ada perubahan di semua input/select/textarea
+  document.addEventListener('input',  saveToLocalStorage);
+  document.addEventListener('change', saveToLocalStorage);
+}
+
+// Tombol reset — kosongkan semua data
+function resetData() {
+  if (!confirm('Yakin ingin mengosongkan semua data? Tindakan ini tidak bisa dibatalkan.')) return;
+
+  // Kosongkan localStorage
+  localStorage.removeItem(LS_KEY);
+
+  // Kosongkan semua input, textarea, select
+  document.querySelectorAll('input[type="text"], input[type="url"], input[type="tel"], input[type="datetime-local"], textarea').forEach(el => el.value = '');
+  document.querySelectorAll('select').forEach(el => el.selectedIndex = 0);
+  document.querySelectorAll('input[type="checkbox"]').forEach(el => el.checked = false);
+
+  // Kosongkan arrays
+  stories = [];
+  ayats   = [];
+  colors  = [];
+  galeri  = ['', '', '', '', '', ''];
+
+  // Re-render komponen dinamis
+  renderStories();
+  renderAyats();
+  renderColors();
+  renderGaleri();
+
+  // Simpan state kosong ke localStorage
+  saveToLocalStorage();
+
+  showNotif('Semua data berhasil dikosongkan 🗑️');
+}
+
+// ─── INIT ─────────────────────────────────────────
+const hasLocalData = loadFromLocalStorage();
+renderStories();
+renderAyats();
+renderColors();
+renderGaleri();
+setupAutoSave();
+
+// Trigger preview untuk foto yang sudah terisi dari localStorage
+['groomFoto','brideFoto','qrisFoto','fotoBersama','fotoIcon'].forEach(id => {
+  imgPreview(id, id+'-prev', id+'-err');
+});
+for (let i = 0; i < 6; i++) imgPreview('galeri_'+i, 'galeri_prev_'+i, 'galeri_err_'+i);
+
+if (hasLocalData) {
+  showNotif('Data tersimpan berhasil dimuat kembali 💾');
+}
+</script>
+</body>
+</html>
